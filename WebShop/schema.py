@@ -97,6 +97,7 @@ class ReviewMutation(graphene.Mutation):
     def mutate(cls, root, info, r_id, title):
         review = Review.objects.get(pk=r_id)
         review.title = title
+        review.updated = datetime.datetime.now()
         review.save()
 
         return ReviewMutation(review=review)
