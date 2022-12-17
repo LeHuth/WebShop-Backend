@@ -1,5 +1,5 @@
 from django.utils.safestring import mark_safe
-
+from datetime import date
 from Members.models import User
 from django.db import models
 
@@ -54,22 +54,28 @@ class ProductImage(models.Model):
         else:
             return '(No image)'
 
-
     def __str__(self):
         return self.image.url
 
 
 class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, related_name='product_review')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=100, blank=False)
-    rating = models.DecimalField(max_digits=1, decimal_places=1, blank=False)
+    rating = models.DecimalField(max_digits=2, decimal_places=1, blank=False)
     text = models.TextField(max_length=500, blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(null=True)
+
+    def __str__(self):
+        return self.title + " - " + self.product.name
 
 
 class Vote(models.Model):
     value = models.BooleanField(blank=False)
     timestamp = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    comment = models.ForeignKey(Review, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vote_owner')
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='review_vote')
 
     def __str__(self):
-        return self.up_or_down + ' on ' + self.game.title + ' by ' + self.user.username
+        return str(self.value) + ' on ' + self.review.title + ' by ' + self.user.username
