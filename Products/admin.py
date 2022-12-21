@@ -11,7 +11,7 @@ class ProductImageInline(admin.StackedInline):
 class ReviewInline(admin.StackedInline):
     model = Review
     extra = 0
-    readonly_fields = ('user','title','rating','text','created')
+    readonly_fields = ('member','title','rating','text','created')
 
 
 class ProductAdmin(admin.ModelAdmin):

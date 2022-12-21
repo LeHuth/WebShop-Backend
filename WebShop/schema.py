@@ -1,32 +1,26 @@
 import graphene
 import graphql_jwt
 from graphene_django import DjangoObjectType
-from django.contrib.auth.models import User
+from Members.models import Member, MemberImage, MemberAddress
 from Products.models import Product, Category, ProductImage, Review, Vote
 from graphql_auth import mutations
 from graphql_auth.schema import UserQuery, MeQuery
 import datetime
-
-
-class UserType(DjangoObjectType):
-    class Meta:
-        name = 'user'
-        model = User
-        fields = ('username',)
+from Members.schema import Query as MemberQuery
 
 
 class VoteType(DjangoObjectType):
     class Meta:
         name = 'vote'
         model = Vote
-        fields = ('id', 'value', 'timestamp', 'user', 'review')
+        fields = ('id', 'value', 'timestamp', 'member', 'review')
 
 
 class ReviewType(DjangoObjectType):
     class Meta:
         name = 'review'
         model = Review
-        fields = ('id', 'title', 'rating', 'text', 'created', 'user', 'review_vote')
+        fields = ('id', 'title', 'rating', 'text', 'created', 'member', 'review_vote')
 
 
 class CategoryType(DjangoObjectType):
@@ -54,7 +48,7 @@ class ProductType(DjangoObjectType):
         fields = ('id', 'name', 'category', 'price', 'rating', 'stock', 'product_image', 'product_review')
 
 
-class Query(UserQuery, MeQuery, graphene.ObjectType):
+class Query(UserQuery, MemberQuery, MeQuery, graphene.ObjectType):
     products = graphene.List(ProductType)
     images = graphene.List(ProductImageType)
     product_detail = graphene.Field(ProductType, productid=graphene.Int())
@@ -108,7 +102,7 @@ class ReviewMutation(graphene.Mutation):
 
 class AuthMutation(graphene.ObjectType):
     register = mutations.Register.Field()
-    token_auth = mutations.ObtainJSONWebToken.Field()
+    login = mutations.ObtainJSONWebToken.Field()
     verify_token = mutations.VerifyToken.Field()
     update_account = mutations.UpdateAccount.Field()
 

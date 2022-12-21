@@ -15,6 +15,7 @@ from pathlib import Path
 import django
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
+
 django.utils.encoding.force_text = force_str
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,7 +29,6 @@ SECRET_KEY = 'django-insecure-3b&(*!ek+bj^b)d0g+e8xu7u2)3z^ka&tr#dcktu(=ei-u!!xh
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 
 # Application definition
 
@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'graphql_jwt.refresh_token.apps.RefreshTokenConfig',
     'graphql_auth',
     'django_filters',
-    'corsheaders'
+    'corsheaders',
 
 ]
 
@@ -143,24 +143,34 @@ GRAPHENE = {
 }
 
 AUTHENTICATION_BACKENDS = [
+    'graphql_jwt.backends.JSONWebTokenBackend',
     'graphql_auth.backends.GraphQLAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
 GRAPHQL_JWT = {
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
+    'ALLOW_LOGIN_NOT_VERIFIED': True,
+    'JWT_ALLOW_ARGUMENT': True,
     "JWT_ALLOW_ANY_CLASSES": [
-        'graphql_auth.mutations.Register'
-        'graphql_auth.mutations.UpdateAccount'
-        'graphql_auth.mutations.ObtainJSONWebToken'
+        "graphql_auth.mutations.Register",
+        "graphql_auth.mutations.VerifyAccount",
+        "graphql_auth.mutations.ResendActivationEmail",
+        "graphql_auth.mutations.SendPasswordResetEmail",
+        "graphql_auth.mutations.PasswordReset",
+        "graphql_auth.mutations.ObtainJSONWebToken",
+        "graphql_auth.mutations.VerifyToken",
+        "graphql_auth.mutations.RefreshToken",
+        "graphql_auth.mutations.RevokeToken",
+        "graphql_auth.mutations.VerifySecondaryEmail",
     ],
-    "JWT_VERIFY_EXPIRATION": True,
-    "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-ALLOWED_HOSTS=['*']
+ALLOWED_HOSTS = ['*']
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-
+AUTH_USER_MODEL = 'Members.Member'

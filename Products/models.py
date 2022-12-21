@@ -1,6 +1,6 @@
 from django.utils.safestring import mark_safe
 from datetime import date
-from Members.models import User
+from Members.models import Member
 from django.db import models
 
 
@@ -60,7 +60,7 @@ class ProductImage(models.Model):
 
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, related_name='product_review')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True, related_name='review_owner')
     title = models.CharField(max_length=100, blank=False)
     rating = models.DecimalField(max_digits=2, decimal_places=1, blank=False)
     text = models.TextField(max_length=500, blank=True, null=True)
@@ -74,8 +74,8 @@ class Review(models.Model):
 class Vote(models.Model):
     value = models.BooleanField(blank=False)
     timestamp = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vote_owner')
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='vote_owner')
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='review_vote')
 
     def __str__(self):
-        return str(self.value) + ' on ' + self.review.title + ' by ' + self.user.username
+        return str(self.value) + ' on ' + self.review.title + ' by ' + self.member.username
