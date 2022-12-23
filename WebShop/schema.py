@@ -105,6 +105,7 @@ class AuthMutation(graphene.ObjectType):
     login = mutations.ObtainJSONWebToken.Field()
     verify_token = mutations.VerifyToken.Field()
     update_account = mutations.UpdateAccount.Field()
+    refresh_token = mutations.RefreshToken.Field()
 
 
 class Mutation(AuthMutation, graphene.ObjectType):
