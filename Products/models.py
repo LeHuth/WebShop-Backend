@@ -3,8 +3,12 @@ from datetime import date
 from Members.models import Member
 from django.db import models
 
-
 # Create your models here.
+GENDER_CHOICE = [
+    ('MEN', 'MEN'),
+    ('WOMAN', 'WOMAN'),
+    ('UNISEX', 'UNISEX')
+]
 
 
 class Category(models.Model):
@@ -13,6 +17,20 @@ class Category(models.Model):
         'self', null=True, blank=True,
         related_name='children', on_delete=models.CASCADE
     )
+
+    def __str__(self):
+        return self.name
+
+
+class Manufacturer(models.Model):
+    name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='images/', blank=True)
+
+    def image_preview(self):
+        if self.image:
+            return mark_safe('<img src="{0}" width="150" height="150" />'.format(self.image.url))
+        else:
+            return '(No image)'
 
     def __str__(self):
         return self.name
@@ -34,14 +52,24 @@ class Product(models.Model):
     name = models.CharField(max_length=100)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=6, decimal_places=2)
-    rating = models.DecimalField(max_digits=1, decimal_places=1)
+    rating = models.DecimalField(max_digits=3, decimal_places=1)
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
+    gender = models.CharField(choices=GENDER_CHOICE, null=True, max_length=7, blank=True)
+    manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE, null=True)
+    variants = models.ManyToManyField(
+        'self', null=True, blank=True,
+        related_name='variant'
+    )
 
     class Meta:
         verbose_name = 'Product'
 
     def __str__(self):
-        return self.name
+        if self.gender:
+            return self.name + ' ' + self.gender
+        else:
+            return  self.name
+
 
 
 class ProductImage(models.Model):
