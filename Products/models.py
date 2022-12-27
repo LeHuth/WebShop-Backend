@@ -53,9 +53,11 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     rating = models.DecimalField(max_digits=3, decimal_places=1)
-    stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
+    stock = models.IntegerField(null=True, blank=True, default=0)
     gender = models.CharField(choices=GENDER_CHOICE, null=True, max_length=7, blank=True)
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE, null=True)
+    short_description = models.TextField(max_length=200, null=True, blank=True)
+    long_description = models.TextField(max_length=1000, null=True, blank=True)
     variants = models.ManyToManyField(
         'self', null=True, blank=True,
         related_name='variant'

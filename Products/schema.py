@@ -6,6 +6,7 @@ from Products.models import Product, Category, ProductImage, Review, Vote, Manuf
 from graphql_auth import mutations
 from graphql_auth.schema import UserQuery, MeQuery
 import datetime
+from graphene import relay
 from Members.schema import Query as MemberQuery
 
 
@@ -42,10 +43,10 @@ class ProductImageType(DjangoObjectType):
         return self.image
 
 
-class ProductType(DjangoObjectType):
+class ProductNode(DjangoObjectType):
     class Meta:
         model = Product
-        fields = ('id', 'name', 'category', 'price', 'rating', 'stock', 'product_image', 'product_review', 'manufacturer', 'gender' ,'variants')
+        fields = ('id', 'name', 'category', 'price', 'rating', 'stock', 'product_image', 'product_review', 'manufacturer', 'gender' ,'variants', 'short_description')
 
 
 class ManufacturerType(DjangoObjectType):
@@ -55,7 +56,17 @@ class ManufacturerType(DjangoObjectType):
 
 
 class AllProductsQuery(graphene.ObjectType):
-    all_products = graphene.List(ProductType)
+    products = graphene.List(ProductNode)
+    product_detail = graphene.Field(ProductNode, productid=graphene.Int())
+    product_reviews = graphene.List(ReviewType, productid=graphene.Int())
 
-    def resolve_all_products(self):
+    def resolve_product_detail(root, info, productid):
+        return Product.objects.get(pk=productid)
+
+    def resolve_product_reviews(root, info, productid):
+        return Review.objects.filter(product=productid)
+
+    def resolve_products(self, info):
         return Product.objects.all()
+
+

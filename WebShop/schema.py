@@ -3,7 +3,7 @@ import graphql_jwt
 from graphene_django import DjangoObjectType
 from Members.models import Member, MemberImage, MemberAddress
 from Products.models import Product, Category, ProductImage, Review, Vote
-from Products.schema import AllProductsQuery, ProductType, ReviewType, ProductImageType
+from Products.schema import AllProductsQuery, ProductNode, ReviewType, ProductImageType
 from graphql_auth import mutations
 from graphql_auth.schema import UserQuery, MeQuery
 import datetime
@@ -14,20 +14,7 @@ from Members.schema import Query as MemberQuery
 
 
 class Query(UserQuery, MemberQuery, MeQuery,AllProductsQuery, graphene.ObjectType):
-    products = graphene.List(ProductType)
     images = graphene.List(ProductImageType)
-    product_detail = graphene.Field(ProductType, productid=graphene.Int())
-    product_reviews = graphene.List(ReviewType, productid=graphene.Int())
-
-    def resolve_product_reviews(root, info, productid):
-        return Review.objects.filter(product=productid)
-
-    def resolve_product_detail(root, info, productid):
-        return Product.objects.get(pk=productid)
-
-    def resolve_products(self, info):
-        return Product.objects.all()
-
     def resolve_images(self):
         return ProductImage.objects.all()
 
@@ -37,7 +24,7 @@ class ProductMutation(graphene.Mutation):
         p_id = graphene.ID()
         name = graphene.String(required=True)
 
-    product = graphene.Field(ProductType)
+    product = graphene.Field(ProductNode)
 
     @classmethod
     def mutate(cls, root, info, p_id, name):
