@@ -10,11 +10,9 @@ import datetime
 from Members.schema import Query as MemberQuery
 
 
-
-
-
-class Query(UserQuery, MemberQuery, MeQuery,AllProductsQuery, graphene.ObjectType):
+class Query(UserQuery, MemberQuery, MeQuery, AllProductsQuery, graphene.ObjectType):
     images = graphene.List(ProductImageType)
+
     def resolve_images(self):
         return ProductImage.objects.all()
 
@@ -52,6 +50,27 @@ class ReviewMutation(graphene.Mutation):
         return ReviewMutation(review=review)
 
 
+class CreateReviewMutation(graphene.Mutation):
+    class Arguments:
+        p_id = graphene.Int(required=True)
+        title = graphene.String()
+        text = graphene.String()
+        rating = graphene.Decimal(required=True)
+
+
+    review = graphene.Field(ReviewType)
+
+    @classmethod
+    def mutate(cls, root, info, title, text, rating, p_id):
+        if info.context.user.is_authenticated:
+            product = Product.objects.get(pk=p_id)
+            review = Review(title=title, text=text, rating=rating, member=info.context.user, product=product)
+            review.save()
+            return CreateReviewMutation(review=review)
+        else:
+            raise Exception("Authentication credentials were not provided")
+
+
 class AuthMutation(graphene.ObjectType):
     register = mutations.Register.Field()
     login = mutations.ObtainJSONWebToken.Field()
@@ -63,6 +82,7 @@ class AuthMutation(graphene.ObjectType):
 class Mutation(AuthMutation, graphene.ObjectType):
     update_product = ProductMutation.Field()
     update_review = ReviewMutation.Field()
+    create_review = CreateReviewMutation.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

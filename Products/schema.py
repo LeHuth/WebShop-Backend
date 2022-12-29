@@ -46,7 +46,9 @@ class ProductImageType(DjangoObjectType):
 class ProductNode(DjangoObjectType):
     class Meta:
         model = Product
-        fields = ('id', 'name', 'category', 'price', 'rating', 'stock', 'product_image', 'product_review', 'manufacturer', 'gender' ,'variants', 'short_description')
+        fields = (
+        'id', 'name', 'category', 'price', 'rating', 'stock', 'product_image', 'product_review', 'manufacturer',
+        'gender', 'variants', 'short_description')
 
 
 class ManufacturerType(DjangoObjectType):
@@ -68,5 +70,6 @@ class AllProductsQuery(graphene.ObjectType):
 
     def resolve_products(self, info):
         return Product.objects.all()
+
 
 
