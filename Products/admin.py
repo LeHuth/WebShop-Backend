@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Product, Stock, Category, ProductImage, Review, Vote, Manufacturer
+from .models import Product, Stock, Category, ProductImage, Review, Vote, Manufacturer, ProductPdf
+
+
+class ProductPdfInline(admin.StackedInline):
+    model = ProductPdf
+    extra = 0
 
 
 class ProductImageInline(admin.StackedInline):
@@ -15,7 +20,7 @@ class ReviewInline(admin.StackedInline):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    inlines = [ProductImageInline, ReviewInline]
+    inlines = [ProductImageInline, ProductPdfInline, ReviewInline]
     filter_horizontal = ['variants']
 
 

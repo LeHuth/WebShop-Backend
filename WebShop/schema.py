@@ -3,7 +3,7 @@ import graphql_jwt
 from graphene_django import DjangoObjectType
 from Members.models import Member, MemberImage, MemberAddress
 from Products.models import Product, Category, ProductImage, Review, Vote
-from Products.schema import AllProductsQuery, ProductNode, ReviewType, ProductImageType
+from Products.schema import AllProductsQuery, ProductNode, ReviewType, ProductImageType, VoteMutation
 from graphql_auth import mutations
 from graphql_auth.schema import UserQuery, MeQuery
 import datetime
@@ -83,6 +83,7 @@ class Mutation(AuthMutation, graphene.ObjectType):
     update_product = ProductMutation.Field()
     update_review = ReviewMutation.Field()
     create_review = CreateReviewMutation.Field()
+    vote = VoteMutation.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

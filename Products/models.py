@@ -58,6 +58,7 @@ class Product(models.Model):
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE, null=True)
     short_description = models.TextField(max_length=200, null=True, blank=True)
     long_description = models.TextField(max_length=1000, null=True, blank=True)
+
     variants = models.ManyToManyField(
         'self', null=True, blank=True,
         related_name='variant'
@@ -70,9 +71,15 @@ class Product(models.Model):
         if self.gender:
             return self.name + ' ' + self.gender
         else:
-            return  self.name
+            return self.name
 
 
+class ProductPdf(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_pdf')
+    docfile = models.FileField(upload_to='documents/', null=True, blank=True)
+
+    def __str__(self):
+        return self.docfile.url
 
 class ProductImage(models.Model):
     image = models.ImageField(upload_to='images/', blank=True)
