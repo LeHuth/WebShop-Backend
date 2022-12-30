@@ -3,7 +3,7 @@ import graphql_jwt
 from graphene_django import DjangoObjectType
 from Members.models import Member, MemberImage, MemberAddress
 from Products.models import Product, Category, ProductImage, Review, Vote
-from Products.schema import AllProductsQuery, ProductNode, ReviewType, ProductImageType, VoteMutation
+from Products.schema import AllProductsQuery, ProductNode, ReviewType, ProductImageType, VoteMutation,ReportMutation
 from graphql_auth import mutations
 from graphql_auth.schema import UserQuery, MeQuery
 import datetime
@@ -57,7 +57,6 @@ class CreateReviewMutation(graphene.Mutation):
         text = graphene.String()
         rating = graphene.Decimal(required=True)
 
-
     review = graphene.Field(ReviewType)
 
     @classmethod
@@ -69,6 +68,24 @@ class CreateReviewMutation(graphene.Mutation):
             return CreateReviewMutation(review=review)
         else:
             raise Exception("Authentication credentials were not provided")
+
+
+class DeleteReviewMutation(graphene.Mutation):
+    class Arguments:
+        r_id = graphene.Int(required=True)
+
+    review = graphene.Field(ReviewType)
+    ok = graphene.Boolean()
+
+    @classmethod
+    def mutate(cls, root, info, r_id):
+        review = Review.objects.get(pk=r_id)
+        member = info.context.user
+        if review.member is not member and not member.is_staff:
+            raise Exception("This User is not Authorized to perform this action")
+
+        review.delete()
+        return DeleteReviewMutation(review=review, ok=True)
 
 
 class AuthMutation(graphene.ObjectType):
@@ -83,7 +100,9 @@ class Mutation(AuthMutation, graphene.ObjectType):
     update_product = ProductMutation.Field()
     update_review = ReviewMutation.Field()
     create_review = CreateReviewMutation.Field()
+    delete_review = DeleteReviewMutation.Field()
     vote = VoteMutation.Field()
+    report = ReportMutation.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

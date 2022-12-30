@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Product, Stock, Category, ProductImage, Review, Vote, Manufacturer, ProductPdf
+from .models import Product, Stock, Category, ProductImage, Review, Vote, Manufacturer, ProductPdf, Report
+
+
+class ReportInline(admin.StackedInline):
+    model = Report
+    extra = 0
 
 
 class ProductPdfInline(admin.StackedInline):
@@ -24,9 +29,14 @@ class ProductAdmin(admin.ModelAdmin):
     filter_horizontal = ['variants']
 
 
+class ReviewAdmin(admin.ModelAdmin):
+    inlines = [ReportInline]
+
+
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Stock)
 admin.site.register(Category)
-admin.site.register(Review)
+admin.site.register(Review, ReviewAdmin)
 admin.site.register(Vote)
 admin.site.register(Manufacturer)
+admin.site.register(Report)

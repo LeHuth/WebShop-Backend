@@ -1,10 +1,12 @@
+import base64
+
 import django_filters
 import graphene
 import graphene_django.filter
 import graphql_jwt
 from graphene_django import DjangoObjectType
 from Members.models import Member, MemberImage, MemberAddress
-from Products.models import Product, Category, ProductImage, Review, Vote, Manufacturer, ProductPdf
+from Products.models import Product, Category, ProductImage, Review, Vote, Manufacturer, ProductPdf, Report
 from django.db.models import Q
 from graphql_auth import mutations
 from graphql_auth.schema import UserQuery, MeQuery
@@ -25,6 +27,13 @@ class ReviewType(DjangoObjectType):
         name = 'review'
         model = Review
         fields = ('id', 'title', 'rating', 'text', 'created', 'member', 'review_vote')
+
+
+class ReviewReportType(DjangoObjectType):
+    class Meta:
+        name = 'reviewreport'
+        model = Report
+        fields = ('id', 'review', 'processed', 'text', 'reason')
 
 
 class CategoryType(DjangoObjectType):
@@ -66,7 +75,7 @@ class ProductFilter(django_filters.FilterSet):
         model = Product
         fields = ('name',)
 
-    def product_filter(self, queryset,name, value):
+    def product_filter(self, queryset, name, value):
         return queryset.filter(
             Q(name__icontains=value)
         )
@@ -74,7 +83,7 @@ class ProductFilter(django_filters.FilterSet):
 
 class ProductNode(DjangoObjectType):
     class Meta:
-        name='product'
+        name = 'product'
         model = Product
 
         fields = (
@@ -90,14 +99,29 @@ class ManufacturerType(DjangoObjectType):
         fields = '__all__'
 
 
-class VoteMutation(graphene.Mutation):
-    ok = graphene.Boolean()
+class ReportMutation(graphene.Mutation):
+    class Arguments:
+        review_id = graphene.Int(required=True)
+        text = graphene.String()
+        reason = graphene.String()
 
+    report = graphene.Field(ReviewReportType)
+
+    @classmethod
+    def mutate(cls, root, info, review_id, text, reason):
+        review = Review.objects.get(pk=review_id)
+        report = Report(review=review, text=text, reason=reason)
+        report.save()
+        return ReportMutation(report=report)
+
+
+class VoteMutation(graphene.Mutation):
     class Arguments:
         upvote = graphene.Boolean(required=True)
         rId = graphene.Int(required=True)
 
     vote = graphene.Field(VoteType)
+    ok = graphene.Boolean()
 
     @classmethod
     def mutate(cls, root, info, rId, upvote):
@@ -112,7 +136,7 @@ class VoteMutation(graphene.Mutation):
 
         if result[0].value == upvote:
             result[0].delete()
-            return VoteMutation(ok=True)
+            return VoteMutation(vote=None, ok=True)
         else:
             vote = result[0]
             vote.value = upvote
@@ -121,13 +145,14 @@ class VoteMutation(graphene.Mutation):
 
 
 class AllProductsQuery(graphene.ObjectType):
-    #products = graphene.List(ProductNode)
-    product_detail = graphene.Field(ProductNode, productid=graphene.Int())
+    # products = graphene.List(ProductNode)
+    product_detail = graphene.Field(ProductNode, productid=graphene.String())
     product_reviews = graphene.List(ReviewType, productid=graphene.Int())
     all_products = graphene_django.filter.DjangoFilterConnectionField(ProductNode)
 
     def resolve_product_detail(root, info, productid):
-        return Product.objects.get(pk=productid)
+        decoded_id = base64.b64decode(productid).decode('utf-8').split(':')[1]
+        return Product.objects.get(pk=int(decoded_id))
 
     def resolve_product_reviews(root, info, productid):
         return Review.objects.filter(product=productid)

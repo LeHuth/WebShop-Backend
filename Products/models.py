@@ -10,6 +10,13 @@ GENDER_CHOICE = [
     ('UNISEX', 'UNISEX')
 ]
 
+REPORT_CHOICE = [
+    ('inappropriate', 'inappropriate'),
+    ('misinformation', 'misinformation'),
+    ('other', 'other'),
+
+]
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -116,3 +123,12 @@ class Vote(models.Model):
 
     def __str__(self):
         return str(self.value) + ' on ' + self.review.title + ' by ' + self.member.username
+
+
+class Report(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, null=True, related_name='reported_review')
+    #staff = models.ForeignKey(Member, on_delete=models.CASCADE, null=True, blank=True)
+    processed = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    text = models.TextField(max_length=500, null=True, blank=True)
+    reason = models.CharField(choices=REPORT_CHOICE, max_length=20, blank=True)
