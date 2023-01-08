@@ -7,12 +7,12 @@ from Members.models import Member, MemberImage, MemberAddress
 from Products.models import Product, Category, ProductImage, Review, Vote
 from Products.schema import AllProductsQuery, ProductNode, ReviewType, ProductImageType, VoteMutation,ReportMutation
 from graphql_auth import mutations
-from graphql_auth.schema import UserQuery, MeQuery
+from graphql_auth.schema import UserQuery
 import datetime
 from Members.schema import Query as MemberQuery
 
 
-class Query(UserQuery, MemberQuery, MeQuery, AllProductsQuery, graphene.ObjectType):
+class Query(UserQuery, MemberQuery, AllProductsQuery, graphene.ObjectType):
     images = graphene.List(ProductImageType)
 
     def resolve_images(self):

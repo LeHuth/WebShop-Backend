@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'graphql_auth',
     'django_filters',
     'corsheaders',
-    'debug_toolbar'
 
 ]
 
@@ -61,7 +60,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'WebShop.urls'
@@ -183,17 +181,3 @@ AUTH_USER_MODEL = 'Members.Member'
 INTERNAL_IPS = [
     '127.0.0.1'
 ]
-
-
-def show_toolbar(request):
-    return True
-
-
-DEBUG_TOOLBAR_CONFIG = {
-    "SHOW_TOOLBAR_CALLBACK": show_toolbar,
-    "INTERCEPT_REDIRECTS": False,
-}
-
-if DEBUG:
-    import mimetypes
-    mimetypes.add_type("application/javascript", ".js", True)

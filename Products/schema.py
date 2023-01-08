@@ -9,7 +9,7 @@ from Members.models import Member, MemberImage, MemberAddress
 from Products.models import Product, Category, ProductImage, Review, Vote, Manufacturer, ProductPdf, Report
 from django.db.models import Q
 from graphql_auth import mutations
-from graphql_auth.schema import UserQuery, MeQuery
+from graphql_auth.schema import UserQuery
 import datetime
 from graphene import relay
 from Members.schema import Query as MemberQuery
