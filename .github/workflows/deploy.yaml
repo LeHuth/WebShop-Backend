@@ -1,0 +1,22 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [deploy]
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Django
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST}}
+          key: ${{ secrets.SSH_KEY }}
+          username: ${{secrets.SSH_USERNAME}}
+
+          script: |
+            cd ~/Backend/
+            git pull origin deploy
+            pip install -r requirements.txt
