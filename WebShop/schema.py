@@ -1,3 +1,5 @@
+import base64
+
 import graphene
 import graphql_jwt
 from graphene_django import DjangoObjectType
@@ -52,7 +54,7 @@ class ReviewMutation(graphene.Mutation):
 
 class CreateReviewMutation(graphene.Mutation):
     class Arguments:
-        p_id = graphene.Int(required=True)
+        p_id = graphene.String(required=True)
         title = graphene.String()
         text = graphene.String()
         rating = graphene.Decimal(required=True)
@@ -62,7 +64,9 @@ class CreateReviewMutation(graphene.Mutation):
     @classmethod
     def mutate(cls, root, info, title, text, rating, p_id):
         if info.context.user.is_authenticated:
-            product = Product.objects.get(pk=p_id)
+
+            decoded_id = base64.b64decode(p_id).decode('utf-8').split(':')[1]
+            product = Product.objects.get(pk=int(decoded_id))
             review = Review(title=title, text=text, rating=rating, member=info.context.user, product=product)
             review.save()
             return CreateReviewMutation(review=review)

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import django
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
     'graphql_auth',
     'django_filters',
     'corsheaders',
+    'debug_toolbar'
 
 ]
 
@@ -58,7 +60,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware'
+    'corsheaders.middleware.CorsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'WebShop.urls'
@@ -151,6 +154,8 @@ AUTHENTICATION_BACKENDS = [
 GRAPHQL_JWT = {
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
+    "JWT_EXPIRATION_DELTA": timedelta(days=7),
+    "JWT_REFRESH_EXPIRED_HANDLER": lambda orig_iat, context: False,
     'ALLOW_LOGIN_NOT_VERIFIED': True,
     'JWT_ALLOW_ARGUMENT': True,
     "JWT_ALLOW_ANY_CLASSES": [
@@ -174,3 +179,21 @@ ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 
 AUTH_USER_MODEL = 'Members.Member'
+
+INTERNAL_IPS = [
+    '127.0.0.1'
+]
+
+
+def show_toolbar(request):
+    return True
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": show_toolbar,
+    "INTERCEPT_REDIRECTS": False,
+}
+
+if DEBUG:
+    import mimetypes
+    mimetypes.add_type("application/javascript", ".js", True)

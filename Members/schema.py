@@ -50,6 +50,7 @@ class SelfQuery(graphene.ObjectType):
 
 
     def resolve_self(self, info):
+        print('self query')
         member = info.context.user
         if not member.is_authenticated:
             raise Exception("Authentication credentials were not provided")
@@ -57,5 +58,5 @@ class SelfQuery(graphene.ObjectType):
 
 
 class Query(SelfQuery, graphene.ObjectType):
-    member = relay.Node.Field(MemberNode)
+    #member = relay.Node.Field(MemberNode)
     all_members = graphene_django.filter.DjangoFilterConnectionField(MemberNode)

@@ -26,7 +26,7 @@ class ReviewType(DjangoObjectType):
     class Meta:
         name = 'review'
         model = Review
-        fields = ('id', 'title', 'rating', 'text', 'created', 'member', 'review_vote')
+        fields = ('id', 'title', 'rating', 'text', 'created', 'member', 'review_vote', 'product')
 
 
 class ReviewReportType(DjangoObjectType):
@@ -88,7 +88,7 @@ class ProductNode(DjangoObjectType):
 
         fields = (
             'id', 'name', 'category', 'price', 'rating', 'stock', 'product_image', 'product_review', 'manufacturer',
-            'gender', 'variants', 'short_description', 'product_pdf')
+            'gender', 'variants', 'short_description', 'product_pdf', 'review_vote')
         filterset_class = ProductFilter
         interfaces = (relay.Node,)
 
@@ -152,10 +152,13 @@ class AllProductsQuery(graphene.ObjectType):
 
     def resolve_product_detail(root, info, productid):
         decoded_id = base64.b64decode(productid).decode('utf-8').split(':')[1]
-        return Product.objects.get(pk=int(decoded_id))
+        test = Product.objects.get(pk=int(decoded_id))
+        print(type(test))
+        return test
 
     def resolve_product_reviews(root, info, productid):
-        return Review.objects.filter(product=productid)
+        decoded_id = base64.b64decode(productid).decode('utf-8').split(':')[1]
+        return Review.objects.filter(product=int(decoded_id))
 
     def resolve_products(self, info):
         return Product.objects.all()
