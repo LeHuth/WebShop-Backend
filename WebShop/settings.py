@@ -185,4 +185,4 @@ INTERNAL_IPS = [
 
 
 import mimetypes
-mimetypes.add_type("text/html", ".js", True)
+mimetypes.add_type("application/javascript", ".js", True)
