@@ -182,3 +182,7 @@ AUTH_USER_MODEL = 'Members.Member'
 INTERNAL_IPS = [
     '127.0.0.1'
 ]
+
+
+import mimetypes
+mimetypes.add_type("text/html", ".js", True)
